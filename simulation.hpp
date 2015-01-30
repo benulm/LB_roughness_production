@@ -58,7 +58,9 @@
 				u_avged(ny,0),
 				v_avged(ny,0),
 				i_avged(ny,0),
-				number_of_averaging_steps(0)
+				number_of_averaging_steps(0),
+				u_old(ny,0),
+				u_new(ny,0)
 
 				{ 
 			// define amount to shift populations for advection
@@ -630,6 +632,13 @@ void add_obstacle(int height, int width, coordinate<int> anker)
 			std::vector<double> i_avged;
 			int number_of_averaging_steps;
 
+			// Convergvence measure
+			std::vector<double> u_old;
+			std::vector<double> u_new;
+			double l2err;
+			double maxerr;
+
+
 
 		};
 
@@ -824,9 +833,29 @@ void add_obstacle(int height, int width, coordinate<int> anker)
 
 			std::ofstream ofstr(tss.c_str(), std::ofstream::trunc);
 
+
+			
+			l2err  = 0;
+			maxerr = 0;
 			for (unsigned h=2; h<l.ny ; h++) {
-				ofstr <<h <<","<<calc_stats_u_h(h) << std::endl;
+				u_new[h] = calc_stats_u_h(h);
+				ofstr <<h <<","<< u_new[h] << std::endl;
 			}
+
+			for(unsigned h=2;h<l.ny;h++){
+				double locdiff = fabs(u_old[h] - u_new[h]);
+				double locdiff2 = locdiff*locdiff;
+				l2err += locdiff2;
+				if(maxerr <= locdiff){
+					maxerr = locdiff;
+				}
+			}
+			l2err = sqrt(l2err);
+			std::cout << "l2 error is:" << l2err << std::endl;
+			std::cout << "maxnorm error is:" << maxerr << std::endl;
+
+
+			swap(u_old, u_new);
 
 			ofstr.close();
 

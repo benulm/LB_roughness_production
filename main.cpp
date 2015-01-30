@@ -63,8 +63,12 @@ int main(int argc, char *argv[])
 	
 	#else
 	
-		for (unsigned int i=1; i<5000000; ++i){
+		for (unsigned int i=1; i<5000002; ++i){
 			sim->step();
+			
+			//convergence
+			// std::cout << "l2 error is:" << sim->l2err << std::endl;
+			// std::cout << "maxnorm error is:" << sim->maxerr << std::endl;
 		}
 
 #ifdef TIME_AVERAGE_
