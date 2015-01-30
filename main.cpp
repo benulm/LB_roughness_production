@@ -5,8 +5,6 @@
 #endif
 #include <omp.h>
 
-
-
 int main(int argc, char *argv[])
 {
 
@@ -14,9 +12,10 @@ int main(int argc, char *argv[])
 	double vmax, re, Hdivh;
 	unsigned nx, h, d, w, pert;
 	vmax = re = Hdivh = nx = h = d = w = pert = 0;
-
-	if(argc < 9){
- 		std::cout << "Call the programm: " << argv[0] << "[nx, Re, v_max, h(obstacle), H/h, width(obstacle), dist(obstacle), pertubation]" << std::endl; 
+	bool read_state, entropic;
+	std::string state = "";
+	if(argc < 11){
+ 		std::cout << "Call the programm: " << argv[0] << "[nx, Re, v_max, h(obstacle), H/h, width(obstacle), dist(obstacle), pertubation, read_state(0/1), entropic(0/1), statfile]" << std::endl; 
  		return 0;
 	}
     else {
@@ -28,10 +27,30 @@ int main(int argc, char *argv[])
         w = atoi(argv[6]);
         d = atoi(argv[7]);
         pert = atoi(argv[8]);
-    } 
+	read_state = atoi(argv[9]);
+	entropic = atoi(argv[10]);
+	if (read_state && argc > 11) {
+		state = std::string(argv[11]);
+	}
+	
+    }
+
+ 	if(read_state && argc == 11){
+		state = "state.dat";
+	}
+	if(entropic){
+		outputdir = "./output/entropic/h" + std::to_string(h) + "/" + outputattatch + "_" + std::to_string(d);
+	}
+	else{
+		outputdir = "./output/kbc/h" + std::to_string(h) + "/" + outputattatch + "_" + std::to_string(d);
+	}
+
+	
+
 
 	omp_set_num_threads(std::max(omp_get_max_threads(),omp_get_num_procs()));
-	lb::simulation* sim = new lb::simulation(nx,(unsigned) (Hdivh * h),vmax, re, h, w, d, pert);
+	lb::simulation* sim = new lb::simulation(nx,(unsigned) (Hdivh * h),vmax, re, h, w, d, pert,state);
+
 	std::cout << *sim << std::endl;
 
 
@@ -44,7 +63,7 @@ int main(int argc, char *argv[])
 	
 	#else
 	
-		for (unsigned int i=1; i<1500; ++i){
+		for (unsigned int i=1; i<5000000; ++i){
 			sim->step();
 		}
 

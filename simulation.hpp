@@ -82,6 +82,7 @@
 
 			if (!filename.empty()){// Read state
 				read_state(filename);
+				std::cout << "I have read the fucking state file so shut up!" << std::endl;
 			}
 			else{// Call initialize
 				initialize();
